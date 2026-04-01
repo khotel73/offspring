@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>임시화면 - 데이터 표</title>
+
+    <!-- 🚨 무단 침입 방지 코드 시작 🚨 -->
+    <script>
+        // 브라우저에 'isLoggedIn' 이라는 출입증이 없으면
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+            alert("잘못된 접근입니다. 비밀번호를 먼저 입력해주세요!");
+            window.location.href = "index.html"; // 강제로 첫 화면으로 쫓아냄
+        }
+    </script>
+    <!-- 🚨 무단 침입 방지 코드 끝 🚨 -->
+    
     <style>
         /* (기존과 동일한 예쁜 스타일 유지) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
