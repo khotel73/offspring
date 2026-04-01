@@ -3,73 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>보안 페이지</title>
+    <title>로그인</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100dvh; padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; text-align: center;
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
         }
-        .box {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
-            padding: 40px 30px; width: 100%; max-width: 400px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        .login-box { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            border-radius: 16px; 
+            padding: 40px 30px; 
+            width: 90%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); 
         }
-        h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 20px; line-height: 1.4; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        input[type="password"] {
-            width: 100%; padding: 15px; margin-bottom: 15px;
-            border: none; border-radius: 8px; font-size: 1rem; text-align: center; outline: none;
+        h1 { 
+            font-size: 2rem; 
+            margin-bottom: 10px; 
+            color: #2c3e50; 
+            text-align: center; 
         }
-        button {
-            width: 100%; padding: 15px; background-color: #5a6fe0;
-            color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+        p.subtitle { 
+            font-size: 0.9rem; 
+            color: #666; 
+            text-align: center; 
+            margin-bottom: 30px; 
         }
-        button:hover { background-color: #4a5fc0; }
-        #error-message { color: #ffcccc; margin-top: 15px; font-size: 0.9rem; display: none; }
+        .input-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #555; 
+            font-weight: 600; 
+        }
+        input[type="password"] { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            transition: border-color 0.3s; 
+        }
+        input[type="password"]:focus { 
+            outline: none; 
+            border-color: #667eea; 
+        }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+        }
+        button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); 
+        }
+        button:active { 
+            transform: translateY(0); 
+        }
+        .error { 
+            color: #e74c3c; 
+            font-size: 0.9rem; 
+            text-align: center; 
+            margin-top: 15px; 
+            display: none; 
+        }
     </style>
 </head>
 <body>
-
-    <div class="box">
-        <h1>🔒 비밀번호 입력</h1>
-        <input type="password" id="password-input" placeholder="암호를 입력하세요" onkeypress="handleKeyPress(event)">
-        <button onclick="checkPassword()">확인</button>
-        <p id="error-message">비밀번호가 틀렸습니다. 다시 시도해주세요.</p>
+    <div class="login-box">
+        <h1>🔐 로그인</h1>
+        <p class="subtitle">비밀번호를 입력하세요</p>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" placeholder="비밀번호 입력" required autofocus>
+            </div>
+            <button type="submit">로그인</button>
+            <p class="error" id="errorMsg">❌ 비밀번호가 올바르지 않습니다.</p>
+        </form>
     </div>
 
     <script>
-        // 여기에 알아내신 sci1004의 해시값을 넣으시면 됩니다.
-        const PASSWORD_HASH = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9";
+        // 🔒 정답 비밀번호 (실제로는 서버에서 검증해야 함)
+        const CORRECT_PASSWORD = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9"; 
 
-        async function hashPassword(password) {
-            const msgBuffer = new TextEncoder().encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        // 이미 로그인된 상태면 바로 main.html로 이동
+        if (sessionStorage.getItem("isLoggedIn") === "true") {
+            window.location.href = "main.html";
         }
 
-        async function checkPassword() {
-            const inputElement = document.getElementById("password-input");
-            const errorMessage = document.getElementById("error-message");
-            const inputHash = await hashPassword(inputElement.value);
-
-            if (inputHash === PASSWORD_HASH) {
-                // ⭐ 암호가 맞으면 다른 HTML 파일로 이동합니다!
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 폼 제출 기본 동작 방지
+            
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (password === CORRECT_PASSWORD) {
+                // ✅ 비밀번호 맞음 → 출입증 발급
+                sessionStorage.setItem("isLoggedIn", "true");
                 window.location.href = "main.html";
             } else {
-                errorMessage.style.display = "block";
-                inputElement.value = ""; 
-                inputElement.focus();
+                // ❌ 비밀번호 틀림
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
             }
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === "Enter") checkPassword();
-        }
+        });
     </script>
 </body>
 </html>
