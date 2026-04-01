@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임시화면 - 데이터 표</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            min-height: 100dvh; 
+            padding: 30px 15px; /* 모바일에서 위아래 여백 확보 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #333;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.9); /* 표가 잘 보이도록 배경을 더 하얗게 조절 */
+            backdrop-filter: blur(10px);
+            border-radius: 16px; 
+            padding: 30px 20px; 
+            width: 100%; 
+            max-width: 600px; /* 표가 들어가므로 상자 너비를 살짝 넓힘 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 { 
+            font-size: clamp(1.8rem, 6vw, 2.5rem); 
+            margin-bottom: 10px; 
+            color: #2c3e50; 
+            text-align: center;
+        }
+
+        p.subtitle { 
+            font-size: 1rem; 
+            color: #666; 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+
+        /* 📊 표 영역 디자인 */
+        .table-container {
+            width: 100%;
+            max-height: 60vh; /* 화면 높이의 60%까지만 보여주고, 넘치면 안에서 스크롤됨 */
+            overflow-y: auto; /* 세로 스크롤 생성 */
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse; /* 테두리 두 줄 되는 것 방지 */
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #2c3e50; /* 헤더 배경색 (진한 남색) */
+            color: white;
+            position: sticky; /* 스크롤을 내려도 제목(헤더)은 위에 고정됨 */
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover {
+            background-color: #f4f6f8; /* 마우스 올렸을 때 살짝 회색으로 변함 */
+        }
+
+        /* 첫 번째 칸(번호)은 약간 회색 배경에 굵은 글씨로 포인트 */
+        td:first-child { 
+            font-weight: bold; 
+            background-color: #fafafa; 
+            width: 30%; 
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>📊 상세 데이터</h1>
+        <p class="subtitle">총 30개의 항목이 있습니다. (스크롤하여 확인하세요)</p>
+        
+        <!-- 표가 들어가는 상자 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 여기서부터 30줄의 데이터가 시작됩니다 -->
+                    <tr><td>1</td><td>데이터 내용 1</td></tr>
+                    <tr><td>2</td><td>데이터 내용 2</td></tr>
+                    <tr><td>3</td><td>데이터 내용 3</td></tr>
+                    <tr><td>4</td><td>데이터 내용 4</td></tr>
+                    <tr><td>5</td><td>데이터 내용 5</td></tr>
+                    <tr><td>6</td><td>데이터 내용 6</td></tr>
+                    <tr><td>7</td><td>데이터 내용 7</td></tr>
+                    <tr><td>8</td><td>데이터 내용 8</td></tr>
+                    <tr><td>9</td><td>데이터 내용 9</td></tr>
+                    <tr><td>10</td><td>데이터 내용 10</td></tr>
+                    <tr><td>11</td><td>데이터 내용 11</td></tr>
+                    <tr><td>12</td><td>데이터 내용 12</td></tr>
+                    <tr><td>13</td><td>데이터 내용 13</td></tr>
+                    <tr><td>14</td><td>데이터 내용 14</td></tr>
+                    <tr><td>15</td><td>데이터 내용 15</td></tr>
+                    <tr><td>16</td><td>데이터 내용 16</td></tr>
+                    <tr><td>17</td><td>데이터 내용 17</td></tr>
+                    <tr><td>18</td><td>데이터 내용 18</td></tr>
+                    <tr><td>19</td><td>데이터 내용 19</td></tr>
+                    <tr><td>20</td><td>데이터 내용 20</td></tr>
+                    <tr><td>21</td><td>데이터 내용 21</td></tr>
+                    <tr><td>22</td><td>데이터 내용 22</td></tr>
+                    <tr><td>23</td><td>데이터 내용 23</td></tr>
+                    <tr><td>24</td><td>데이터 내용 24</td></tr>
+                    <tr><td>25</td><td>데이터 내용 25</td></tr>
+                    <tr><td>26</td><td>데이터 내용 26</td></tr>
+                    <tr><td>27</td><td>데이터 내용 27</td></tr>
+                    <tr><td>28</td><td>데이터 내용 28</td></tr>
+                    <tr><td>29</td><td>데이터 내용 29</td></tr>
+                    <tr><td>30</td><td>데이터 내용 30</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
