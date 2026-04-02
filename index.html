@@ -58,6 +58,8 @@
             const inputHash = await hashPassword(inputElement.value);
 
             if (inputHash === PASSWORD_HASH) {
+                // ✅ 여기서 세션 설정!
+                sessionStorage.setItem("isLoggedIn", "true");  // 👈 정의
                 // ⭐ 암호가 맞으면 다른 HTML 파일로 이동합니다!
                 window.location.href = "main.html";
             } else {
