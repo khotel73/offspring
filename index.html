@@ -75,6 +75,10 @@
         button:active {
             transform: translateY(0);
         }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .error {
             color: #e74c3c;
             font-size: 0.9rem;
@@ -111,6 +115,7 @@
             margin-top: 5px;
             font-family: 'Courier New', monospace;
             color: #e74c3c;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -123,69 +128,107 @@
                 <label for="password">비밀번호</label>
                 <input type="password" id="password" placeholder="비밀번호 입력" required autofocus>
             </div>
-            <button type="submit">로그인</button>
+            <button type="submit" id="loginBtn">로그인</button>
             <p class="error" id="errorMsg">❌ 비밀번호가 올바르지 않습니다.</p>
         </form>
-
         <!-- 🆕 디버그 정보 표시 영역 -->
         <div class="debug-box" id="debugBox" style="display: none;">
             <h3>🔍 디버그 정보</h3>
-            <p><strong>입력한 값:</strong></p>
+            <p><strong>입력한 원본:</strong></p>
             <div class="value" id="inputValue">-</div>
-            <p style="margin-top: 10px;"><strong>정답 값:</strong></p>
+            <p style="margin-top: 10px;"><strong>입력값 해시(SHA-256):</strong></p>
+            <div class="value" id="hashedValue">-</div>
+            <p style="margin-top: 10px;"><strong>정답 해시:</strong></p>
             <div class="value" id="correctValue">-</div>
             <p style="margin-top: 10px;"><strong>일치 여부:</strong> <span id="matchResult">-</span></p>
         </div>
     </div>
-
     <script>
-        // 🔒 정답 비밀번호 (실제로는 서버에서 검증해야 함)
-        const CORRECT_PASSWORD = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9";
+        // 🔒 정답 비밀번호 해시 (SHA-256)
+        // 예: "1234"의 해시값
+        const CORRECT_PASSWORD_HASH = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9";
         
         // 이미 로그인된 상태면 바로 main.html로 이동
         if (sessionStorage.getItem("isLoggedIn") === "true") {
             window.location.href = "main.html";
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // 🔐 SHA-256 해시 생성 함수
+        async function sha256Hash(message) {
+            // 문자열을 바이트 배열로 변환
+            const msgBuffer = new TextEncoder().encode(message);
+            
+            // SHA-256 해시 생성
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            
+            // 바이트 배열을 16진수 문자열로 변환
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            return hashHex;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault(); // 폼 제출 기본 동작 방지
             
+            const loginBtn = document.getElementById('loginBtn');
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
             const debugBox = document.getElementById('debugBox');
             
-            // 🆕 디버그 정보 표시
-            debugBox.style.display = 'block';
-            document.getElementById('inputValue').textContent = password;
-            document.getElementById('correctValue').textContent = CORRECT_PASSWORD;
+            // 버튼 비활성화 (중복 클릭 방지)
+            loginBtn.disabled = true;
+            loginBtn.textContent = '처리 중...';
             
-            // 🆕 콘솔에도 출력
-            console.log('=== 🔍 로그인 디버그 정보 ===');
-            console.log('입력한 값:', password);
-            console.log('정답 값:', CORRECT_PASSWORD);
-            console.log('일치 여부:', password === CORRECT_PASSWORD);
-            console.log('입력 길이:', password.length);
-            console.log('정답 길이:', CORRECT_PASSWORD.length);
-            console.log('========================');
-            
-            if (password === CORRECT_PASSWORD) {
-                // ✅ 비밀번호 맞음 → 출입증 발급
-                document.getElementById('matchResult').textContent = '✅ 일치2';
-                document.getElementById('matchResult').style.color = '#27ae60';
+            try {
+                // 🔐 입력한 비밀번호를 SHA-256 해시로 변환
+                const hashedPassword = await sha256Hash(password);
                 
-                sessionStorage.setItem("isLoggedIn", "true");
+                // 🆕 디버그 정보 표시
+                debugBox.style.display = 'block';
+                document.getElementById('inputValue').textContent = password;
+                document.getElementById('hashedValue').textContent = hashedPassword;
+                document.getElementById('correctValue').textContent = CORRECT_PASSWORD_HASH;
                 
-                setTimeout(() => {
-                    window.location.href = "main.html";
-                }, 1000); // 1초 후 이동 (디버그 정보를 볼 시간 제공)
-            } else {
-                // ❌ 비밀번호 틀림
-                document.getElementById('matchResult').textContent = '❌ 불일치2';
-                document.getElementById('matchResult').style.color = '#e74c3c';
+                // 🆕 콘솔에도 출력
+                console.log('=== 🔍 로그인 디버그 정보 ===');
+                console.log('입력한 원본:', password);
+                console.log('입력값 해시:', hashedPassword);
+                console.log('정답 해시:', CORRECT_PASSWORD_HASH);
+                console.log('일치 여부:', hashedPassword === CORRECT_PASSWORD_HASH);
+                console.log('입력 해시 길이:', hashedPassword.length);
+                console.log('정답 해시 길이:', CORRECT_PASSWORD_HASH.length);
+                console.log('========================');
                 
-                errorMsg.style.display = 'block';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
+                if (hashedPassword === CORRECT_PASSWORD_HASH) {
+                    // ✅ 비밀번호 맞음 → 출입증 발급
+                    document.getElementById('matchResult').textContent = '✅ 일치';
+                    document.getElementById('matchResult').style.color = '#27ae60';
+                    
+                    sessionStorage.setItem("isLoggedIn", "true");
+                    
+                    loginBtn.textContent = '✅ 로그인 성공!';
+                    
+                    setTimeout(() => {
+                        window.location.href = "main.html";
+                    }, 1000); // 1초 후 이동 (디버그 정보를 볼 시간 제공)
+                } else {
+                    // ❌ 비밀번호 틀림
+                    document.getElementById('matchResult').textContent = '❌ 불일치';
+                    document.getElementById('matchResult').style.color = '#e74c3c';
+                    
+                    errorMsg.style.display = 'block';
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                    
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '로그인';
+                }
+            } catch (error) {
+                console.error('해시 생성 오류:', error);
+                alert('오류가 발생했습니다. 다시 시도해주세요.');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '로그인';
             }
         });
     </script>
