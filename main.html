@@ -3,191 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인</title>
+    <title>임시화면 - 데이터 표</title>
     <style>
+        /* (기존과 동일한 예쁜 스타일 유지) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 40px 30px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            text-align: center;
-        }
-        p.subtitle {
-            font-size: 0.9rem;
-            color: #666;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        .error {
-            color: #e74c3c;
-            font-size: 0.9rem;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
-        /* 🆕 디버그 정보 박스 스타일 */
-        .debug-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            font-size: 0.85rem;
-            word-break: break-all;
-        }
-        .debug-box h3 {
-            color: #2c3e50;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        .debug-box p {
-            margin: 5px 0;
-            color: #555;
-        }
-        .debug-box strong {
-            color: #667eea;
-        }
-        .debug-box .value {
-            background: white;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 5px;
-            font-family: 'Courier New', monospace;
-            color: #e74c3c;
-        }
+        body { display: flex; flex-direction: column; align-items: center; min-height: 100dvh; padding: 30px 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #333; }
+        .box { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 10px; color: #2c3e50; text-align: center; }
+        p.subtitle { font-size: 1rem; color: #666; text-align: center; margin-bottom: 20px; }
+        .table-container { width: 100%; max-height: 60vh; overflow-y: auto; border-radius: 8px; border: 1px solid #ddd; background: white; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: center; font-size: 0.95rem; }
+        th { background-color: #2c3e50; color: white; position: sticky; top: 0; z-index: 1; }
+        tr:hover { background-color: #f4f6f8; }
+        td:first-child { font-weight: bold; background-color: #fafafa; width: 30%; }
+        .loading { text-align: center; padding: 20px; color: #666; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h1>🔐 로그인</h1>
-        <p class="subtitle">비밀번호를 입력하세요</p>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" placeholder="비밀번호 입력" required autofocus>
-            </div>
-            <button type="submit">로그인</button>
-            <p class="error" id="errorMsg">❌ 비밀번호가 올바르지 않습니다.</p>
-        </form>
-
-        <!-- 🆕 디버그 정보 표시 영역 -->
-        <div class="debug-box" id="debugBox" style="display: none;">
-            <h3>🔍 디버그 정보</h3>
-            <p><strong>입력한 값:</strong></p>
-            <div class="value" id="inputValue">-</div>
-            <p style="margin-top: 10px;"><strong>정답 값:</strong></p>
-            <div class="value" id="correctValue">-</div>
-            <p style="margin-top: 10px;"><strong>일치 여부:</strong> <span id="matchResult">-</span></p>
+    <div class="box">
+        <h1>📊 상세 데이터</h1>
+        <p class="subtitle">Cloudflare D1에서 실시간으로 가져온 데이터입니다.</p>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>내용</th>
+                    </tr>
+                </thead>
+                <!-- 안의 내용을 비워두고, 자바스크립트로 채웁니다 -->
+                <tbody id="table-body">
+                    <tr><td colspan="2" class="loading">데이터를 불러오는 중입니다...⏳</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // 🔒 정답 비밀번호 (실제로는 서버에서 검증해야 함)
-        const CORRECT_PASSWORD = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9";
-        
-        // 이미 로그인된 상태면 바로 main.html로 이동
-        if (sessionStorage.getItem("isLoggedIn") === "true") {
-            window.location.href = "main.html";
+        // 화면이 켜지자마자 API에서 데이터를 가져오는 함수
+        async function loadData() {
+            try {
+                // 우리가 아까 만든 3단계의 길(API)을 통해 데이터를 요청합니다.
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                const tableBody = document.getElementById('table-body');
+                tableBody.innerHTML = ''; // '불러오는 중' 글자를 지웁니다.
+
+                // 가져온 데이터(배열)를 하나씩 꺼내서 표(tr, td)로 만듭니다.
+                data.forEach(item => {
+                    const row = `<tr>
+                                    <td>${item.id}</td>
+                                    <td>${item.content}</td>
+                                 </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+                // 만약 DB에 데이터가 하나도 없다면?
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2">데이터가 없습니다.</td></tr>';
+                }
+
+            } catch (error) {
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="2">오류가 발생했습니다. ❌</td></tr>';
+            }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // 폼 제출 기본 동작 방지
-            
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
-            const debugBox = document.getElementById('debugBox');
-            
-            // 🆕 디버그 정보 표시
-            debugBox.style.display = 'block';
-            document.getElementById('inputValue').textContent = password;
-            document.getElementById('correctValue').textContent = CORRECT_PASSWORD;
-            
-            // 🆕 콘솔에도 출력
-            console.log('=== 🔍 로그인 디버그 정보 ===');
-            console.log('입력한 값:', password);
-            console.log('정답 값:', CORRECT_PASSWORD);
-            console.log('일치 여부:', password === CORRECT_PASSWORD);
-            console.log('입력 길이:', password.length);
-            console.log('정답 길이:', CORRECT_PASSWORD.length);
-            console.log('========================');
-            
-            if (password === CORRECT_PASSWORD) {
-                // ✅ 비밀번호 맞음 → 출입증 발급
-                document.getElementById('matchResult').textContent = '✅ 일치';
-                document.getElementById('matchResult').style.color = '#27ae60';
-                
-                sessionStorage.setItem("isLoggedIn", "true");
-                
-                setTimeout(() => {
-                    window.location.href = "main.html";
-                }, 1000); // 1초 후 이동 (디버그 정보를 볼 시간 제공)
-            } else {
-                // ❌ 비밀번호 틀림
-                document.getElementById('matchResult').textContent = '❌ 불일치';
-                document.getElementById('matchResult').style.color = '#e74c3c';
-                
-                errorMsg.style.display = 'block';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-            }
-        });
+        // 함수 실행!
+        loadData();
     </script>
 </body>
 </html>
