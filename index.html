@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>보안 페이지</title>
+    <title>보안 시스템 로그인</title>
     <style>
+        /* 기본 여백 제거 및 모바일 최적화 설정 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             display: flex; justify-content: center; align-items: center;
             min-height: 100dvh; padding: 20px;
@@ -13,64 +15,98 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white; text-align: center;
         }
+        
+        /* 반투명 유리 상자 디자인 */
         .box {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
             padding: 40px 30px; width: 100%; max-width: 400px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-        h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 20px; line-height: 1.4; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        input[type="password"] {
+
+        h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 25px; line-height: 1.4; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        
+        /* 입력창 2개 (아이디, 비밀번호) 디자인 */
+        input[type="text"], input[type="password"] {
             width: 100%; padding: 15px; margin-bottom: 15px;
-            border: none; border-radius: 8px; font-size: 1rem; text-align: center; outline: none;
+            border: none; border-radius: 8px; font-size: 1rem;
+            outline: none; text-align: center;
         }
+
         button {
-            width: 100%; padding: 15px; background-color: #5a6fe0;
-            color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            width: 100%; padding: 15px; margin-top: 10px;
+            background-color: #5a6fe0; color: white;
+            border: none; border-radius: 8px; font-size: 1.1rem;
+            font-weight: bold; cursor: pointer; transition: background-color 0.3s;
         }
         button:hover { background-color: #4a5fc0; }
-        #error-message { color: #ffcccc; margin-top: 15px; font-size: 0.9rem; display: none; }
+        
+        /* 에러 메시지 */
+        #error-message {
+            color: #ffcccc; margin-top: 15px; font-size: 0.9rem; display: none;
+        }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <h1>🔒 비밀번호 입력</h1>
-        <input type="password" id="password-input" placeholder="암호를 입력하세요" onkeypress="handleKeyPress(event)">
-        <button onclick="checkPassword()">확인</button>
-        <p id="error-message">비밀번호가 틀렸습니다. 다시 시도해주세요.</p>
+        <h1>🔒 시스템 로그인</h1>
+        
+        <!-- 아이디 입력칸 -->
+        <input type="text" id="id-input" placeholder="아이디를 입력하세요" onkeypress="handleKeyPress(event)">
+        <!-- 비밀번호 입력칸 -->
+        <input type="password" id="password-input" placeholder="비밀번호를 입력하세요" onkeypress="handleKeyPress(event)">
+        
+        <button onclick="attemptLogin()">로그인</button>
+        <p id="error-message">아이디 또는 비밀번호가 틀렸습니다.</p>
     </div>
 
     <script>
-        // 여기에 알아내신 sci1004의 해시값을 넣으시면 됩니다.
-        const PASSWORD_HASH = "9cad1c9c1b66849750712f1b7ac8af57ac029b16b4cc9d8578ef255dcacb7cc9";
-
-        async function hashPassword(password) {
-            const msgBuffer = new TextEncoder().encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function checkPassword() {
-            const inputElement = document.getElementById("password-input");
+        // 로그인 시도 함수 (심사관 API 호출)
+        async function attemptLogin() {
+            const idVal = document.getElementById("id-input").value;
+            const passVal = document.getElementById("password-input").value;
             const errorMessage = document.getElementById("error-message");
-            const inputHash = await hashPassword(inputElement.value);
 
-            if (inputHash === PASSWORD_HASH) {
-                // ✅ 여기서 세션 설정!
-                sessionStorage.setItem("isLoggedIn", "true");  // 👈 정의
-                // ⭐ 암호가 맞으면 다른 HTML 파일로 이동합니다!
-                window.location.href = "main.html";
-            } else {
+            // 입력값이 비어있는지 확인
+            if (!idVal || !passVal) {
+                errorMessage.innerText = "아이디와 비밀번호를 모두 입력해주세요.";
                 errorMessage.style.display = "block";
-                inputElement.value = ""; 
-                inputElement.focus();
+                return;
+            }
+
+            try {
+                // 우리가 만든 API(functions/api/login.js)로 아이디/암호를 몰래 보냅니다. (POST 방식)
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: idVal, password: passVal })
+                });
+
+                const result = await response.json();
+
+                if (result.success === true) {
+                    // 서버 심사 통과! (출입증을 발급하고 main.html로 이동)
+                    sessionStorage.setItem("isLoggedIn", "true"); 
+                    window.location.href = "main.html";
+                } else {
+                    // 심사 탈락 (아이디/비밀번호 틀림 등)
+                    errorMessage.innerText = result.message; // 서버에서 보내준 실패 이유를 화면에 띄움
+                    errorMessage.style.display = "block";
+                    document.getElementById("password-input").value = ""; // 비밀번호 칸 비우기
+                    document.getElementById("password-input").focus();
+                }
+            } catch (error) {
+                errorMessage.innerText = "서버 통신 오류가 발생했습니다.";
+                errorMessage.style.display = "block";
             }
         }
 
+        // 엔터(Enter) 키를 쳐도 작동하게 하는 함수
         function handleKeyPress(event) {
-            if (event.key === "Enter") checkPassword();
+            if (event.key === "Enter") {
+                attemptLogin();
+            }
         }
     </script>
 </body>
