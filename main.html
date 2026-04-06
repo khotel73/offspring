@@ -40,6 +40,7 @@
                     <tr>
                         <th>번호</th>
                         <th>내용</th>
+                        <th>Tel</th>
                     </tr>
                 </thead>
                 <!-- 안의 내용을 비워두고, 자바스크립트로 채웁니다 -->
@@ -65,7 +66,8 @@
                 data.forEach(item => {
                     const row = `<tr>
                                     <td>${item.id}</td>
-                                    <td>${item.content}</td>
+                                    <td>${item.content1}</td>
+                                    <td>${item.content2}</td>
                                  </tr>`;
                     tableBody.innerHTML += row;
                 });
