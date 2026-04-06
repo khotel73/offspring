@@ -6,7 +6,7 @@ export async function onRequest(context) {
         }
 
         // 2. DB에서 데이터를 가져옵니다.
-        const { results } = await context.env.DB.prepare("SELECT * FROM items ORDER BY id ASC").all();
+        const { results } = await context.env.DB.prepare("SELECT * FROM items_tel ORDER BY id ASC").all();
         
         return Response.json(results);
     } catch (e) {
