@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연락처 - 표</title>
+    <title>사내 대시보드</title>
     
     <!-- 🚨 무단 침입 방지 코드 시작 🚨 -->
     <script>
@@ -17,10 +17,75 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { display: flex; flex-direction: column; align-items: center; min-height: 100dvh; padding: 30px 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #333; }
+        
+        /* 🎨 전체 화면 레이아웃 (사이드바 + 메인 화면) */
+        body { 
+            display: flex; 
+            flex-direction: row; /* 가로로 배치 (왼쪽 메뉴, 오른쪽 화면) */
+            height: 100vh; /* 화면 전체 높이 사용 */
+            overflow: hidden; /* 전체 화면의 스크롤 방지 (오른쪽 화면 안에서만 스크롤) */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+            color: #333; 
+        }
+
+        /* 📌 왼쪽 메뉴 (사이드바) 디자인 */
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.2); /* 반투명 어두운 배경 */
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            color: white;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* 메뉴 버튼 디자인 */
+        .menu-item {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.4);
+            color: #111;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 🖥️ 오른쪽 메인 화면 영역 */
+        .main-content {
+            flex: 1; /* 남은 공간을 모두 차지 */
+            padding: 40px 20px;
+            overflow-y: auto; /* 내용이 많으면 오른쪽 화면만 세로 스크롤 생성 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 화면 위쪽부터 정렬 */
+        }
+
+        /* (기존) 콘텐츠 박스 및 표 스타일 */
+        .section-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        
         .box { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
         h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 10px; color: #2c3e50; text-align: center; }
         p.subtitle { font-size: 1rem; color: #666; text-align: center; margin-bottom: 20px; }
+        
         .table-container { width: 100%; max-height: 60vh; overflow-y: auto; border-radius: 8px; border: 1px solid #ddd; background: white; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: center; font-size: 0.95rem; }
@@ -29,56 +94,98 @@
         td:first-child { font-weight: bold; background-color: #fafafa; width: 30%; }
         .loading { text-align: center; padding: 20px; color: #666; font-weight: bold; }
         
-        /* 📞 전화번호 링크 예쁘게 꾸미기 */
-        .tel-link {
-            color: #0056b3; /* 누를 수 있게 파란색 계열로 표시 */
-            text-decoration: none; /* 밑줄 제거 */
-            font-weight: bold;
-            display: block; /* 터치 영역을 넓혀줌 */
-            padding: 5px;
-        }
-        .tel-link:hover {
-            text-decoration: underline; /* 마우스 올렸을 때 밑줄 */
-            color: #003d82;
+        .tel-link { color: #0056b3; text-decoration: none; font-weight: bold; display: block; padding: 5px; }
+        .tel-link:hover { text-decoration: underline; color: #003d82; }
+
+        /* 📱 모바일 화면 맞춤 설정 (화면이 좁아지면 메뉴가 위로 올라감) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                flex-direction: row; /* 메뉴를 가로로 배치 */
+                padding: 15px; 
+                overflow-x: auto; /* 메뉴가 많으면 가로 스크롤 */
+            }
+            .sidebar h2 { display: none; } /* 모바일에서는 제목 숨김 */
+            .menu-item { white-space: nowrap; padding: 10px 15px; }
+            .main-content { padding: 20px 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>📊 상세 데이터</h1>
-        <p class="subtitle">Cloudflare D1에서 실시간으로 가져온 데이터입니다.</p>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>번호</th>
-                        <th>내용</th>
-                        <th>Tel</th>
-                    </tr>
-                </thead>
-                <!-- 안의 내용을 비워두고, 자바스크립트로 채웁니다 -->
-                <tbody id="table-body">
-                    <!-- 열이 3개이므로 colspan을 3으로 맞췄습니다 -->
-                    <tr><td colspan="3" class="loading">데이터를 불러오는 중입니다...⏳</td></tr>
-                </tbody>
-            </table>
+
+    <!-- 📌 사이드바 (왼쪽 메뉴) -->
+    <nav class="sidebar">
+        <h2>대시보드</h2>
+        <!-- 클릭 시 showSection 함수가 실행되어 화면을 바꿔줍니다 -->
+        <div class="menu-item active" id="menu-contact" onclick="showSection('contact')">📞 연락처</div>
+        <div class="menu-item" id="menu-traffic" onclick="showSection('traffic')">🚌 교통현황 (준비 중)</div>
+    </nav>
+
+    <!-- 🖥️ 메인 콘텐츠 (오른쪽 화면) -->
+    <main class="main-content">
+        
+        <!-- 1️⃣ 연락처 화면 (처음에 보이는 화면) -->
+        <div id="section-contact" class="section-container">
+            <div class="box">
+                <h1>📞 상세 데이터</h1>
+                <p class="subtitle">Cloudflare D1에서 실시간으로 가져온 데이터입니다.</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>내용</th>
+                                <th>Tel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="3" class="loading">데이터를 불러오는 중입니다...⏳</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-    
+
+        <!-- 2️⃣ 교통현황 화면 (메뉴 클릭 시 보이는 화면, 기본적으로 숨겨짐) -->
+        <div id="section-traffic" class="section-container" style="display: none;">
+            <div class="box">
+                <h1>🚌 교통현황</h1>
+                <p class="subtitle">현재 개발 중인 페이지입니다.</p>
+                <div style="text-align: center; padding: 40px 0; color: #555;">
+                    <p>곧 실시간 버스 도착 정보 등이 업데이트될 예정입니다!</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
     <script>
-        // 화면이 켜지자마자 API에서 데이터를 가져오는 함수
+        // 🔄 메뉴 전환 함수
+        function showSection(sectionId) {
+            // 모든 화면을 숨김 처리
+            document.getElementById("section-contact").style.display = "none";
+            document.getElementById("section-traffic").style.display = "none";
+            
+            // 모든 메뉴 버튼의 색상(활성화 상태) 초기화
+            document.getElementById("menu-contact").classList.remove("active");
+            document.getElementById("menu-traffic").classList.remove("active");
+
+            // 클릭한 화면만 보여주고, 클릭한 메뉴 색상 변경
+            document.getElementById("section-" + sectionId).style.display = "flex";
+            document.getElementById("menu-" + sectionId).classList.add("active");
+        }
+
+        // 📡 API 데이터 로드 함수 (연락처)
         async function loadData() {
             try {
-                // 아까 만든 3단계의 길(API)을 통해 데이터를 요청합니다.
                 const response = await fetch('/api/data');
                 const data = await response.json();
                 
                 const tableBody = document.getElementById('table-body');
-                tableBody.innerHTML = ''; // '불러오는 중' 글자를 지웁니다.
+                tableBody.innerHTML = ''; 
                 
-                // 가져온 데이터(배열)를 하나씩 꺼내서 표(tr, td)로 만듭니다.
                 data.forEach(item => {
-                    // ⭐ 핵심: content2(전화번호) 부분에 <a href="tel:번호"> 태그를 씌워줍니다!
                     const row = `<tr>
                                     <td>${item.id}</td>
                                     <td>${item.content1}</td>
@@ -87,7 +194,6 @@
                     tableBody.innerHTML += row;
                 });
                 
-                // 만약 DB에 데이터가 하나도 없다면?
                 if (data.length === 0) {
                     tableBody.innerHTML = '<tr><td colspan="3">데이터가 없습니다.</td></tr>';
                 }
@@ -96,7 +202,7 @@
             }
         }
         
-        // 함수 실행!
+        // 화면 켜지자마자 데이터 로드 실행
         loadData();
     </script>
 </body>
