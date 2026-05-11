@@ -6,7 +6,7 @@ export async function onRequest(context) {
     const ROUTE_ID = "107900008"; 
 
     // 3. 서울시 버스 위치 정보 API 주소 (JSON 형태로 요청)
-    const url = `http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid?serviceKey=${API_KEY}&busRouteId=${ROUTE_ID}&resultType=json`;
+    const url = `https://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid?serviceKey=${API_KEY}&busRouteId=${ROUTE_ID}&resultType=json`;
 
     try {
         // 공공데이터포털에 데이터 요청
