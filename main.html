@@ -10,7 +10,6 @@
             alert("⛔ 잘못된 접근입니다. 비밀번호를 먼저 입력해주세요!");
             window.location.href = "index.html";
         }
-        
         // 로그인한 사용자 확인
         const loggedInUser = sessionStorage.getItem("username") || "";
     </script>
@@ -31,7 +30,10 @@
         .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
         .menu-item { padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
         .menu-item:hover, .menu-item.active { background: rgba(255, 255, 255, 0.4); color: #111; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .menu-item.hidden { display: none; }
+        
+        /* 💡 kgw 로그인 시 숨김 처리용 클래스 */
+        .hidden { display: none !important; }
+
         /* 🖥️ 메인 화면 영역 */
         .main-content {
             flex: 1; padding: 40px 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start;
@@ -128,6 +130,7 @@
     <!-- 📌 사이드바 -->
     <nav class="sidebar">
         <h2>대시보드</h2>
+        <!-- 💡 id="menu-contact"에 대해 스크립트에서 hidden 처리 예정 -->
         <div class="menu-item active" id="menu-contact" onclick="showSection('contact')">📞 연락처</div>
         <div class="menu-item" id="menu-traffic08" onclick="showSection('traffic08')">🚌 교통현황 (성북08)</div>
         <div class="menu-item" id="menu-traffic09" onclick="showSection('traffic09')">🚍 교통현황 (성북09)</div>
@@ -179,34 +182,32 @@
         </div>
     </main>
     <script>
-        // 사용자 권한에 따른 메뉴 표시/숨김 처리
-        if (loggedInUser === "kgw") {
-            // kgw 사용자는 연락처 메뉴 숨김
-            document.getElementById("menu-contact").classList.add("hidden");
-            document.getElementById("section-contact").style.display = "none";
-            
-            // 첫 화면을 교통현황 (성북08)로 설정
-            document.getElementById("section-traffic08").style.display = "flex";
-            document.getElementById("menu-traffic08").classList.add("active");
-            loadBusArrive08();
-        }
-
         // 🔄 메뉴 전환 함수
         function showSection(sectionId) {
+            // 모든 섹션 숨김
             document.getElementById("section-contact").style.display = "none";
             document.getElementById("section-traffic08").style.display = "none";
             document.getElementById("section-traffic09").style.display = "none";
+            
+            // 모든 메뉴 비활성화
             document.getElementById("menu-contact").classList.remove("active");
             document.getElementById("menu-traffic08").classList.remove("active");
             document.getElementById("menu-traffic09").classList.remove("active");
+            
+            // 선택된 섹션 및 메뉴 활성화
             document.getElementById("section-" + sectionId).style.display = "flex";
             document.getElementById("menu-" + sectionId).classList.add("active");
+            
             if (sectionId === 'contact') loadData();
             if (sectionId === 'traffic08') loadBusArrive08();
             if (sectionId === 'traffic09') loadBusArrive09();
         }
+
         // 📡 연락처 데이터 로드
         async function loadData() {
+            // kgw 사용자는 데이터 로드 자체를 하지 않음
+            if (loggedInUser === "kgw") return;
+
             try {
                 const response = await fetch('/api/data');
                 const data = await response.json();
@@ -225,6 +226,7 @@
                 document.getElementById('table-body').innerHTML = '<tr><td colspan="3">오류가 발생했습니다. ❌</td></tr>';
             }
         }
+
         // 🚌 성북08 버스 도착 예정 시간 로드
         async function loadBusArrive08() {
             const wrap = document.getElementById('bus-arrive-wrap08');
@@ -264,6 +266,7 @@
                 wrap.innerHTML = '<div class="loading">도착 정보를 불러오지 못했습니다. ❌</div>';
             }
         }
+
         // 🚍 성북09 버스 도착 예정 시간 로드
         async function loadBusArrive09() {
             const wrap = document.getElementById('bus-arrive-wrap09');
@@ -303,11 +306,19 @@
                 wrap.innerHTML = '<div class="loading">도착 정보를 불러오지 못했습니다. ❌</div>';
             }
         }
-        // 화면 처음 켜질 때 - kgw가 아닌 경우에만 연락처 로드
-        if (loggedInUser !== "kgw") {
-            loadData();
-        }
-        
+
+        // 🏁 초기 실행 로직
+        window.onload = function() {
+            if (loggedInUser === "kgw") {
+                // kgw 사용자는 연락처 메뉴 숨김 및 교통현황으로 시작
+                document.getElementById("menu-contact").classList.add("hidden");
+                showSection('traffic08');
+            } else {
+                // 일반 사용자는 연락처 로드
+                loadData();
+            }
+        };
+
         // 30초마다 버스 도착 시간 자동 갱신
         setInterval(() => {
             const traffic08Visible = document.getElementById('section-traffic08').style.display !== 'none';
