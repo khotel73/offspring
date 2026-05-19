@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사내 대시보드</title>
-    <!-- 🚨 무단 침입 방지 코드 시작 🚨 -->
     <script>
+        // 1. 보안 및 사용자 확인 (최상단 실행)
         if (sessionStorage.getItem("isLoggedIn") !== "true") {
             alert("⛔ 잘못된 접근입니다. 비밀번호를 먼저 입력해주세요!");
             window.location.href = "index.html";
         }
-        // 로그인한 사용자 확인
         const loggedInUser = sessionStorage.getItem("username") || "";
     </script>
-    <!-- 🚨 무단 침입 방지 코드 끝 🚨 -->
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -21,310 +19,179 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #333;
         }
-        /* 📌 사이드바 디자인 */
         .sidebar {
             width: 250px; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px);
             padding: 30px 20px; display: flex; flex-direction: column; gap: 15px; color: white;
             border-right: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
         .menu-item { padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
         .menu-item:hover, .menu-item.active { background: rgba(255, 255, 255, 0.4); color: #111; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* 💡 kgw 로그인 시 숨김 처리용 클래스 */
+        /* 💡 숨김 처리용 클래스 */
         .hidden { display: none !important; }
 
-        /* 🖥️ 메인 화면 영역 */
-        .main-content {
-            flex: 1; padding: 40px 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start;
-        }
-        .section-container { width: 100%; display: flex; justify-content: center; }
+        .main-content { flex: 1; padding: 40px 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        .section-container { width: 100%; display: none; justify-content: center; } /* 기본적으로 모두 숨김 */
         .box { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
         h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin-bottom: 10px; color: #2c3e50; text-align: center; }
         p.subtitle { font-size: 1rem; color: #666; text-align: center; margin-bottom: 20px; }
-        /* 표 공통 스타일 */
+        
+        /* 테이블/카드 스타일 */
         .table-container { width: 100%; max-height: 50vh; overflow-y: auto; border-radius: 8px; border: 1px solid #ddd; background: white; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: center; font-size: 0.95rem; }
-        th { background-color: #2c3e50; color: white; position: sticky; top: 0; z-index: 1; }
-        tr:hover { background-color: #f4f6f8; }
-        td:first-child { font-weight: bold; background-color: #fafafa; width: 25%; }
-        .loading { text-align: center; padding: 20px; color: #666; font-weight: bold; }
-        /* 전화번호 링크 */
-        .tel-link { color: #0056b3; text-decoration: none; font-weight: bold; display: block; padding: 5px; }
-        .tel-link:hover { text-decoration: underline; color: #003d82; }
-        /* 🚌 버스 도착 예정 시간 카드 스타일 */
-        .bus-arrive-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-        /* 버스 도착 카드 */
-        .bus-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            border-left: 6px solid #43e97b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-        /* 버스 카드 왼쪽 (노선 + 방향) */
-        .bus-card-left .bus-route {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .bus-card-left .bus-direction {
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 4px;
-        }
-        /* 버스 카드 오른쪽 (도착 예정 시간 2개) */
-        .bus-card-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-        }
-        /* 첫번째 도착 버스 (강조) */
-        .arrive-first {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-        /* 두번째 도착 버스 */
-        .arrive-second {
-            font-size: 1rem;
-            color: #555;
-        }
-        /* 곧 도착 (1분 이하) 일때 깜빡이는 효과 */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background-color: #2c3e50; color: white; position: sticky; top: 0; }
+        .bus-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 6px solid #43e97b; display: flex; justify-content: space-between; align-items: center; }
+        .arrive-first { font-size: 1.4rem; font-weight: bold; color: #e74c3c; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .blink { animation: blink 1s infinite; }
-        /* 마지막 갱신 시간 표시 */
-        .update-time {
-            text-align: right;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 10px;
-        }
-        /* 📱 모바일 반응형 */
+        .update-time { text-align: right; font-size: 0.8rem; color: #aaa; margin-top: 10px; }
+
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 15px; overflow-x: auto; }
             .sidebar h2 { display: none; }
-            .menu-item { white-space: nowrap; padding: 10px 15px; }
-            .main-content { padding: 20px 10px; }
-            .bus-card { flex-direction: column; align-items: flex-start; }
-            .bus-card-right { align-items: flex-start; }
         }
     </style>
 </head>
 <body>
-    <!-- 📌 사이드바 -->
     <nav class="sidebar">
         <h2>대시보드</h2>
-        <!-- 💡 id="menu-contact"에 대해 스크립트에서 hidden 처리 예정 -->
-        <div class="menu-item active" id="menu-contact" onclick="showSection('contact')">📞 연락처</div>
+        <!-- 💡 HTML에서 active 클래스를 제거했습니다. JS에서 제어합니다. -->
+        <div class="menu-item" id="menu-contact" onclick="showSection('contact')">📞 연락처</div>
         <div class="menu-item" id="menu-traffic08" onclick="showSection('traffic08')">🚌 교통현황 (성북08)</div>
         <div class="menu-item" id="menu-traffic09" onclick="showSection('traffic09')">🚍 교통현황 (성북09)</div>
     </nav>
-    <!-- 🖥️ 메인 콘텐츠 -->
+
     <main class="main-content">
-        <!-- 1️⃣ 연락처 화면 -->
+        <!-- 1️⃣ 연락처 화면 (기본 display: none) -->
         <div id="section-contact" class="section-container">
             <div class="box">
                 <h1>📞 연락처</h1>
-                <p class="subtitle">사내 주요 연락처 목록입니다.</p>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>번호</th>
-                                <th>내용</th>
-                                <th>Tel</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <tr><td colspan="3" class="loading">데이터를 불러오는 중입니다...⏳</td></tr>
-                        </tbody>
+                        <thead><tr><th>번호</th><th>내용</th><th>Tel</th></tr></thead>
+                        <tbody id="table-body"></tbody>
                     </table>
                 </div>
             </div>
         </div>
+
         <!-- 2️⃣ 교통현황 화면 (성북08) -->
-        <div id="section-traffic08" class="section-container" style="display: none;">
+        <div id="section-traffic08" class="section-container">
             <div class="box">
                 <h1>🚌 교통현황</h1>
-                <p class="subtitle">📍 기준 정류장: <strong>길음역</strong> (성북08 방향)</p>
-                <div class="bus-arrive-wrap" id="bus-arrive-wrap08">
-                    <div class="loading">도착 정보를 불러오는 중입니다...⏳</div>
-                </div>
+                <p class="subtitle">📍 기준: <strong>길음역</strong> (성북08)</p>
+                <div id="bus-arrive-wrap08"></div>
                 <p class="update-time" id="update-time08"></p>
             </div>
         </div>
+
         <!-- 3️⃣ 교통현황 화면 (성북09) -->
-        <div id="section-traffic09" class="section-container" style="display: none;">
+        <div id="section-traffic09" class="section-container">
             <div class="box">
                 <h1>🚍 교통현황</h1>
-                <p class="subtitle">📍 기준 정류장: <strong>길음역</strong> (성북09 방향)</p>
-                <div class="bus-arrive-wrap" id="bus-arrive-wrap09">
-                    <div class="loading">도착 정보를 불러오는 중입니다...⏳</div>
-                </div>
+                <p class="subtitle">📍 기준: <strong>길음역</strong> (성북09)</p>
+                <div id="bus-arrive-wrap09"></div>
                 <p class="update-time" id="update-time09"></p>
             </div>
         </div>
     </main>
+
     <script>
-        // 🔄 메뉴 전환 함수
+        // 🔄 메뉴/섹션 전환 함수
         function showSection(sectionId) {
-            // 모든 섹션 숨김
-            document.getElementById("section-contact").style.display = "none";
-            document.getElementById("section-traffic08").style.display = "none";
-            document.getElementById("section-traffic09").style.display = "none";
+            // 모든 섹션과 메뉴 초기화
+            document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+
+            // 선택된 항목만 표시
+            const targetSection = document.getElementById("section-" + sectionId);
+            const targetMenu = document.getElementById("menu-" + sectionId);
             
-            // 모든 메뉴 비활성화
-            document.getElementById("menu-contact").classList.remove("active");
-            document.getElementById("menu-traffic08").classList.remove("active");
-            document.getElementById("menu-traffic09").classList.remove("active");
-            
-            // 선택된 섹션 및 메뉴 활성화
-            document.getElementById("section-" + sectionId).style.display = "flex";
-            document.getElementById("menu-" + sectionId).classList.add("active");
-            
-            if (sectionId === 'contact') loadData();
+            if (targetSection && targetMenu) {
+                targetSection.style.display = "flex";
+                targetMenu.classList.add("active");
+            }
+
+            // 데이터 로드
+            if (sectionId === 'contact' && loggedInUser !== "kgw") loadData();
             if (sectionId === 'traffic08') loadBusArrive08();
             if (sectionId === 'traffic09') loadBusArrive09();
         }
 
-        // 📡 연락처 데이터 로드
-        async function loadData() {
-            // kgw 사용자는 데이터 로드 자체를 하지 않음
-            if (loggedInUser === "kgw") return;
+        // 🏁 초기화 함수: 로그인한 사용자에 따라 첫 화면 결정
+        function initializeDashboard() {
+            if (loggedInUser === "kgw") {
+                // 1. 연락처 메뉴 버튼 자체를 제거하거나 숨김
+                document.getElementById("menu-contact").classList.add("hidden");
+                // 2. 바로 교통현황(성북08) 화면을 띄움
+                showSection('traffic08');
+            } else {
+                // 일반 사용자는 연락처 메뉴를 첫 화면으로
+                showSection('contact');
+            }
+        }
 
+        // --- 데이터 로드 함수들 ---
+        async function loadData() {
             try {
                 const response = await fetch('/api/data');
                 const data = await response.json();
                 const tableBody = document.getElementById('table-body');
-                tableBody.innerHTML = '';
-                data.forEach(item => {
-                    const row = `<tr>
-                                    <td>${item.id}</td>
-                                    <td>${item.content1}</td>
-                                    <td><a href="tel:${item.content2}" class="tel-link">${item.content2}</a></td>
-                                 </tr>`;
-                    tableBody.innerHTML += row;
-                });
-                if (data.length === 0) tableBody.innerHTML = '<tr><td colspan="3">데이터가 없습니다.</td></tr>';
-            } catch (error) {
-                document.getElementById('table-body').innerHTML = '<tr><td colspan="3">오류가 발생했습니다. ❌</td></tr>';
-            }
+                tableBody.innerHTML = data.map(item => `
+                    <tr><td>${item.id}</td><td>${item.content1}</td>
+                    <td><a href="tel:${item.content2}" style="color:#0056b3; font-weight:bold;">${item.content2}</a></td></tr>
+                `).join('');
+            } catch (e) { console.error("연락처 로드 실패"); }
         }
 
-        // 🚌 성북08 버스 도착 예정 시간 로드
         async function loadBusArrive08() {
             const wrap = document.getElementById('bus-arrive-wrap08');
-            wrap.innerHTML = '<div class="loading">도착 정보를 불러오는 중입니다...⏳</div>';
+            wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
             try {
                 const response = await fetch('/api/bus');
                 const data = await response.json();
-                wrap.innerHTML = '';
-                if (data.msgBody && data.msgBody.itemList) {
-                    const busList = data.msgBody.itemList;
-                    busList.forEach(bus => {
-                        const firstArrive = bus.arrmsg1 || "정보 없음";
-                        const secondArrive = bus.arrmsg2 || "정보 없음";
-                        const isUrgent = firstArrive.includes("곧") || firstArrive.includes("0분");
-                        const urgentClass = isUrgent ? "blink" : "";
-                        const card = `
-                            <div class="bus-card">
-                                <div class="bus-card-left">
-                                    <div class="bus-route">🚌 성북08</div>
-                                    <div class="bus-direction">📍 길음역 → 신안아파트·길음초교 방향</div>
-                                </div>
-                                <div class="bus-card-right">
-                                    <div class="arrive-first ${urgentClass}">🟢 ${firstArrive}</div>
-                                    <div class="arrive-second">🔵 ${secondArrive}</div>
-                                </div>
-                            </div>
-                        `;
-                        wrap.innerHTML += card;
-                    });
-                } else {
-                    wrap.innerHTML = '<div class="loading">현재 도착 예정 버스 정보가 없습니다.</div>';
-                }
-                const now = new Date();
-                document.getElementById('update-time08').innerText =
-                    `마지막 갱신: ${now.getHours()}시 ${now.getMinutes()}분 ${now.getSeconds()}초`;
-            } catch (error) {
-                wrap.innerHTML = '<div class="loading">도착 정보를 불러오지 못했습니다. ❌</div>';
-            }
+                renderBusInfo(data, wrap, "성북08", "길음역 → 신안아파트");
+                document.getElementById('update-time08').innerText = "갱신: " + new Date().toLocaleTimeString();
+            } catch (e) { wrap.innerHTML = "데이터 오류"; }
         }
 
-        // 🚍 성북09 버스 도착 예정 시간 로드
         async function loadBusArrive09() {
             const wrap = document.getElementById('bus-arrive-wrap09');
-            wrap.innerHTML = '<div class="loading">도착 정보를 불러오는 중입니다...⏳</div>';
+            wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
             try {
                 const response = await fetch('/api/bus09');
                 const data = await response.json();
-                wrap.innerHTML = '';
-                if (data.msgBody && data.msgBody.itemList) {
-                    const busList = data.msgBody.itemList;
-                    busList.forEach(bus => {
-                        const firstArrive = bus.arrmsg1 || "정보 없음";
-                        const secondArrive = bus.arrmsg2 || "정보 없음";
-                        const isUrgent = firstArrive.includes("곧") || firstArrive.includes("0분");
-                        const urgentClass = isUrgent ? "blink" : "";
-                        const card = `
-                            <div class="bus-card">
-                                <div class="bus-card-left">
-                                    <div class="bus-route">🚍 성북09</div>
-                                    <div class="bus-direction">📍 길음역 → 성북09 방향</div>
-                                </div>
-                                <div class="bus-card-right">
-                                    <div class="arrive-first ${urgentClass}">🟢 ${firstArrive}</div>
-                                    <div class="arrive-second">🔵 ${secondArrive}</div>
-                                </div>
+                renderBusInfo(data, wrap, "성북09", "길음역 → 성북09 방향");
+                document.getElementById('update-time09').innerText = "갱신: " + new Date().toLocaleTimeString();
+            } catch (e) { wrap.innerHTML = "데이터 오류"; }
+        }
+
+        function renderBusInfo(data, wrap, busNm, dir) {
+            if (data.msgBody && data.msgBody.itemList) {
+                wrap.innerHTML = data.msgBody.itemList.map(bus => {
+                    const isUrgent = bus.arrmsg1.includes("곧") || bus.arrmsg1.includes("0분");
+                    return `
+                        <div class="bus-card">
+                            <div><div style="font-size:1.2rem;font-weight:bold;">${busNm}</div><div style="font-size:0.8rem;color:#888;">${dir}</div></div>
+                            <div style="text-align:right;">
+                                <div class="arrive-first ${isUrgent ? 'blink' : ''}">🟢 ${bus.arrmsg1}</div>
+                                <div style="font-size:0.9rem;color:#555;">🔵 ${bus.arrmsg2}</div>
                             </div>
-                        `;
-                        wrap.innerHTML += card;
-                    });
-                } else {
-                    wrap.innerHTML = '<div class="loading">현재 도착 예정 버스 정보가 없습니다.</div>';
-                }
-                const now = new Date();
-                document.getElementById('update-time09').innerText =
-                    `마지막 갱신: ${now.getHours()}시 ${now.getMinutes()}분 ${now.getSeconds()}초`;
-            } catch (error) {
-                wrap.innerHTML = '<div class="loading">도착 정보를 불러오지 못했습니다. ❌</div>';
+                        </div>`;
+                }).join('');
+            } else {
+                wrap.innerHTML = "정보 없음";
             }
         }
 
-        // 🏁 초기 실행 로직
-        window.onload = function() {
-            if (loggedInUser === "kgw") {
-                // kgw 사용자는 연락처 메뉴 숨김 및 교통현황으로 시작
-                document.getElementById("menu-contact").classList.add("hidden");
-                showSection('traffic08');
-            } else {
-                // 일반 사용자는 연락처 로드
-                loadData();
-            }
-        };
-
-        // 30초마다 버스 도착 시간 자동 갱신
+        // 실행
+        initializeDashboard();
         setInterval(() => {
-            const traffic08Visible = document.getElementById('section-traffic08').style.display !== 'none';
-            const traffic09Visible = document.getElementById('section-traffic09').style.display !== 'none';
-            if (traffic08Visible) loadBusArrive08();
-            if (traffic09Visible) loadBusArrive09();
+            if (document.getElementById('section-traffic08').style.display !== 'none') loadBusArrive08();
+            if (document.getElementById('section-traffic09').style.display !== 'none') loadBusArrive09();
         }, 30000);
     </script>
 </body>
