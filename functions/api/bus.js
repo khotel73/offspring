@@ -5,7 +5,7 @@ export async function onRequest(context) {
     // (정류장 기둥 또는 네이버맵/카카오맵에서 확인)
     const ARS_ID = "여기에_길음역_ARS번호_입력";
 
-    const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid?serviceKey=5c4482096008ea2859616900c056d47ba3cef53a0089b192c375b6e26ef78a68&arsId=08-560&resultType=json`;
+    const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid?serviceKey=5c4482096008ea2859616900c056d47ba3cef53a0089b192c375b6e26ef78a68&arsId=08560&resultType=json`;
 
     try {
         const response = await fetch(url);
