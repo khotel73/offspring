@@ -138,7 +138,7 @@
         // 🏁 초기화 로직
         window.addEventListener('DOMContentLoaded', () => {
 
-            alert("현재 인식된 로그인 아이디: [" + loggedInUser + "]");
+            // alert("현재 인식된 로그인 아이디: [" + loggedInUser + "]");
             if (loggedInUser === "kgw") {
                 // kgw일 경우: 연락처 생성 생략, 바로 교통현황으로 시작
                 showSection('traffic08');
@@ -170,7 +170,7 @@
             try {
                 const response = await fetch('/api/bus');
                 const data = await response.json();
-                renderBusInfo(data, wrap, "성북08", "길음역 → 신안아파트");
+                renderBusInfo(data, wrap, "성북08", "길음역 → 신안아파트 방향");
                 document.getElementById('update-time08').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
@@ -181,7 +181,7 @@
             try {
                 const response = await fetch('/api/bus09');
                 const data = await response.json();
-                renderBusInfo(data, wrap, "성북09", "길음역 → 성북09 방향");
+                renderBusInfo(data, wrap, "성북09", "길음역 → 신안아파트 방향");
                 document.getElementById('update-time09').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
