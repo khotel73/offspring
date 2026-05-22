@@ -87,7 +87,9 @@
 
                 if (result.success === true) {
                     // 서버 심사 통과! (출입증을 발급하고 main.html로 이동)
-                    sessionStorage.setItem("isLoggedIn", "true"); 
+                    sessionStorage.setItem("isLoggedIn", "true");   
+                   //  username'이라는 이름으로 저장합니다.
+                    sessionStorage.setItem("username", idVal);                     
                     window.location.href = "main.html";
                 } else {
                     // 심사 탈락 (아이디/비밀번호 틀림 등)
