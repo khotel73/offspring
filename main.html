@@ -10,6 +10,15 @@
             alert("⛔ 잘못된 접근입니다. 비밀번호를 먼저 입력해주세요!");
             window.location.href = "index.html";
         }
+
+        // 원본 데이터를 가져와서 공백을 없애고 소문자로 변환
+        const rawUser = sessionStorage.getItem("username") || "";
+        const loggedInUser = rawUser.trim().toLowerCase(); 
+
+        // 💡 디버깅용: 화면 접속 시 어떤 아이디로 인식했는지 창을 띄워 확인합니다. 
+        // (확인 후 이 alert 줄은 지워주세요)
+        alert("현재 인식된 로그인 아이디: [" + loggedInUser + "]");
+        
         const loggedInUser = sessionStorage.getItem("username") || "";
     </script>
     <style>
