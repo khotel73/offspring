@@ -47,8 +47,8 @@
         #game-container { 
             position: relative; 
             width: 100%; 
-            max-width: 400px; 
-            height: 500px; 
+            max-width: 450px; 
+            height: 550px; 
             margin: 20px auto; 
             background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
             border-radius: 12px;
@@ -84,22 +84,34 @@
             margin-top: 15px;
             color: #666;
             font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 0 20px;
         }
         .btn-control {
-            display: inline-block;
-            padding: 15px 30px;
-            margin: 10px 5px;
+            flex: 1;
+            max-width: 180px;
+            padding: 18px 20px;
             background: linear-gradient(135deg, #FFB6C1, #FF69B4);
             color: white;
-            border-radius: 25px;
+            border-radius: 15px;
             font-weight: bold;
+            font-size: 1.1rem;
             cursor: pointer;
             user-select: none;
             box-shadow: 0 4px 10px rgba(255,105,180,0.3);
             transition: transform 0.1s;
+            text-align: center;
+            white-space: nowrap;
         }
         .btn-control:active {
             transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(255,105,180,0.3);
         }
         #game-over {
             position: absolute;
@@ -117,6 +129,7 @@
         #game-over h2 {
             color: #ff69b4;
             margin-bottom: 15px;
+            font-size: 1.8rem;
         }
         #restart-btn {
             padding: 12px 30px;
@@ -132,9 +145,87 @@
         
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; padding: 15px; overflow-x: auto; }
+            .sidebar { 
+                width: 100%; 
+                flex-direction: row; 
+                padding: 10px; 
+                overflow-x: auto;
+                gap: 10px;
+            }
             .sidebar h2 { display: none; }
-            #game-container { height: 400px; }
+            .menu-item { 
+                padding: 10px 15px; 
+                white-space: nowrap;
+                font-size: 0.9rem;
+            }
+            .main-content { 
+                padding: 15px 10px; 
+                height: calc(100vh - 60px);
+            }
+            .box { 
+                padding: 15px 10px; 
+                max-width: 100%;
+            }
+            h1 { 
+                font-size: 1.5rem; 
+                margin-bottom: 10px;
+            }
+            #game-container { 
+                height: calc(100vh - 320px);
+                min-height: 400px;
+                max-height: 550px;
+                margin: 10px auto;
+                border-width: 3px;
+            }
+            .game-score { 
+                font-size: 1.3rem; 
+                margin: 10px 0;
+            }
+            .control-buttons {
+                gap: 10px;
+                padding: 0 10px;
+                margin-top: 10px;
+            }
+            .btn-control {
+                padding: 20px 15px;
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+            .game-controls {
+                font-size: 0.8rem;
+                margin-top: 10px;
+                padding: 0 10px;
+            }
+            .chiikawa {
+                font-size: 45px;
+            }
+            .item {
+                font-size: 32px;
+            }
+            #game-over {
+                padding: 25px 30px;
+                max-width: 90%;
+            }
+            #game-over h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            #game-container {
+                height: calc(100vh - 300px);
+                min-height: 350px;
+            }
+            .btn-control {
+                padding: 18px 12px;
+                font-size: 0.95rem;
+            }
+            .chiikawa {
+                font-size: 40px;
+            }
+            .item {
+                font-size: 28px;
+            }
         }
     </style>
 </head>
@@ -198,7 +289,7 @@
             const gameBtn = document.createElement('div');
             gameBtn.className = 'menu-item';
             gameBtn.id = 'menu-game';
-            gameBtn.innerText = '🎮 치이카와 게임';
+            gameBtn.innerText = '🎮 치이카와';
             gameBtn.onclick = () => showSection('game');
             sidebar.appendChild(gameBtn);
             
@@ -206,7 +297,7 @@
             dynamicArea.innerHTML = `
                 <div id="section-game" class="section-container">
                     <div class="box">
-                        <h1>🐹 치이카와 아이템 캐치</h1>
+                        <h1>🐹 아이템 캐치</h1>
                         <div class="game-score">점수: <span id="score">0</span></div>
                         <div id="game-container">
                             <div class="chiikawa" id="player">🐹</div>
@@ -216,7 +307,7 @@
                                 <button id="restart-btn" onclick="restartGame()">다시 시작</button>
                             </div>
                         </div>
-                        <div style="text-align:center; margin-top:15px;">
+                        <div class="control-buttons">
                             <div class="btn-control" id="btn-left">⬅️ 왼쪽</div>
                             <div class="btn-control" id="btn-right">오른쪽 ➡️</div>
                         </div>
@@ -340,6 +431,7 @@
             itemInterval = setInterval(createItem, 1200);
             
             // 키보드 이벤트
+            document.removeEventListener('keydown', handleKeyPress);
             document.addEventListener('keydown', handleKeyPress);
             
             // 모바일 버튼 이벤트
@@ -347,10 +439,16 @@
             const btnRight = document.getElementById('btn-right');
             
             if (btnLeft && btnRight) {
-                btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(-15); });
-                btnLeft.addEventListener('click', () => movePlayer(-15));
-                btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(15); });
-                btnRight.addEventListener('click', () => movePlayer(15));
+                btnLeft.replaceWith(btnLeft.cloneNode(true));
+                btnRight.replaceWith(btnRight.cloneNode(true));
+                
+                const newBtnLeft = document.getElementById('btn-left');
+                const newBtnRight = document.getElementById('btn-right');
+                
+                newBtnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(-15); });
+                newBtnLeft.addEventListener('click', (e) => { e.preventDefault(); movePlayer(-15); });
+                newBtnRight.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(15); });
+                newBtnRight.addEventListener('click', (e) => { e.preventDefault(); movePlayer(15); });
             }
         }
         
