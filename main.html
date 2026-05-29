@@ -43,15 +43,98 @@
         .blink { animation: blink 1s infinite; }
         .update-time { text-align: right; font-size: 0.8rem; color: #aaa; margin-top: 10px; }
         
-        /* 테트리스 스타일 */
-        #tetris-canvas { border: 3px solid #2c3e50; background: #000; display: block; margin: 20px auto; box-shadow: 0 0 20px rgba(0,0,0,0.3); }
-        .game-info { display: flex; justify-content: space-around; margin-top: 15px; font-size: 1.1rem; font-weight: bold; }
-        .game-controls { text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; }
+        /* 치이카와 게임 스타일 */
+        #game-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 400px; 
+            height: 500px; 
+            margin: 20px auto; 
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid #FFB6C1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            touch-action: none;
+        }
+        .chiikawa {
+            position: absolute;
+            font-size: 50px;
+            transition: left 0.1s;
+            user-select: none;
+        }
+        .item {
+            position: absolute;
+            font-size: 35px;
+            animation: fall linear;
+            user-select: none;
+        }
+        @keyframes fall {
+            to { top: 100%; }
+        }
+        .game-score {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #ff69b4;
+        }
+        .game-controls {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .btn-control {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px 5px;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 10px rgba(255,105,180,0.3);
+            transition: transform 0.1s;
+        }
+        .btn-control:active {
+            transform: scale(0.95);
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        #game-over h2 {
+            color: #ff69b4;
+            margin-bottom: 15px;
+        }
+        #restart-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
         
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 15px; overflow-x: auto; }
             .sidebar h2 { display: none; }
+            #game-container { height: 400px; }
         }
     </style>
 </head>
@@ -109,28 +192,37 @@
             `;
         }
 
-        // --- kgw 전용 테트리스 렌더링 ---
-        function renderTetrisElements() {
+        // --- kgw 전용 치이카와 게임 렌더링 ---
+        function renderGameElements() {
             const sidebar = document.getElementById('sidebar-nav');
-            const tetrisBtn = document.createElement('div');
-            tetrisBtn.className = 'menu-item';
-            tetrisBtn.id = 'menu-tetris';
-            tetrisBtn.innerText = '🎮 테트리스';
-            tetrisBtn.onclick = () => showSection('tetris');
-            sidebar.appendChild(tetrisBtn);
+            const gameBtn = document.createElement('div');
+            gameBtn.className = 'menu-item';
+            gameBtn.id = 'menu-game';
+            gameBtn.innerText = '🎮 치이카와 게임';
+            gameBtn.onclick = () => showSection('game');
+            sidebar.appendChild(gameBtn);
             
             const dynamicArea = document.getElementById('dynamic-content-area');
             dynamicArea.innerHTML = `
-                <div id="section-tetris" class="section-container">
+                <div id="section-game" class="section-container">
                     <div class="box">
-                        <h1>🎮 테트리스</h1>
-                        <canvas id="tetris-canvas" width="240" height="400"></canvas>
-                        <div class="game-info">
-                            <div>점수: <span id="score">0</span></div>
-                            <div>레벨: <span id="level">1</span></div>
+                        <h1>🐹 치이카와 아이템 캐치</h1>
+                        <div class="game-score">점수: <span id="score">0</span></div>
+                        <div id="game-container">
+                            <div class="chiikawa" id="player">🐹</div>
+                            <div id="game-over">
+                                <h2>게임 종료!</h2>
+                                <p style="font-size:1.2rem; margin:10px 0;">최종 점수: <span id="final-score">0</span></p>
+                                <button id="restart-btn" onclick="restartGame()">다시 시작</button>
+                            </div>
+                        </div>
+                        <div style="text-align:center; margin-top:15px;">
+                            <div class="btn-control" id="btn-left">⬅️ 왼쪽</div>
+                            <div class="btn-control" id="btn-right">오른쪽 ➡️</div>
                         </div>
                         <div class="game-controls">
-                            ⬅️ 왼쪽 | ➡️ 오른쪽 | ⬇️ 빠르게 | ⬆️ 회전 | Space: 일시정지
+                            🍎사과 +10점 | 💎보석 +30점 | 💣폭탄 게임오버<br>
+                            PC: 화살표 키 | 모바일: 버튼 터치
                         </div>
                     </div>
                 </div>
@@ -152,13 +244,13 @@
             if (sectionId === 'contact') loadData();
             if (sectionId === 'traffic08') loadBusArrive08();
             if (sectionId === 'traffic09') loadBusArrive09();
-            if (sectionId === 'tetris') initTetris();
+            if (sectionId === 'game') initGame();
         }
 
         // 🏁 초기화 로직
         window.addEventListener('DOMContentLoaded', () => {
             if (loggedInUser === "kgw") {
-                renderTetrisElements();
+                renderGameElements();
                 showSection('traffic08');
             } else {
                 renderContactElements();
@@ -224,159 +316,128 @@
             if (document.getElementById('section-traffic09').style.display !== 'none') loadBusArrive09();
         }, 30000);
 
-        // ===== 테트리스 게임 로직 =====
-        let tetrisInterval;
-        function initTetris() {
-            const canvas = document.getElementById('tetris-canvas');
-            if (!canvas) return;
+        // ===== 치이카와 아이템 캐치 게임 =====
+        let gameInterval, itemInterval;
+        let score = 0, gameRunning = false;
+        let playerPos = 50;
+        
+        function initGame() {
+            score = 0;
+            playerPos = 50;
+            gameRunning = true;
+            document.getElementById('score').innerText = score;
+            document.getElementById('game-over').style.display = 'none';
+            document.querySelectorAll('.item').forEach(item => item.remove());
             
-            const ctx = canvas.getContext('2d');
-            const ROWS = 20, COLS = 12, BLOCK = 20;
-            let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-            let score = 0, level = 1, gameOver = false, paused = false;
+            const player = document.getElementById('player');
+            if (!player) return;
             
-            const shapes = [
-                [[1,1,1,1]], // I
-                [[1,1],[1,1]], // O
-                [[0,1,0],[1,1,1]], // T
-                [[1,0,0],[1,1,1]], // L
-                [[0,0,1],[1,1,1]], // J
-                [[0,1,1],[1,1,0]], // S
-                [[1,1,0],[0,1,1]]  // Z
+            player.style.left = '50%';
+            player.style.bottom = '20px';
+            
+            // 아이템 생성
+            clearInterval(itemInterval);
+            itemInterval = setInterval(createItem, 1200);
+            
+            // 키보드 이벤트
+            document.addEventListener('keydown', handleKeyPress);
+            
+            // 모바일 버튼 이벤트
+            const btnLeft = document.getElementById('btn-left');
+            const btnRight = document.getElementById('btn-right');
+            
+            if (btnLeft && btnRight) {
+                btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(-15); });
+                btnLeft.addEventListener('click', () => movePlayer(-15));
+                btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(15); });
+                btnRight.addEventListener('click', () => movePlayer(15));
+            }
+        }
+        
+        function createItem() {
+            if (!gameRunning) return;
+            
+            const container = document.getElementById('game-container');
+            if (!container) return;
+            
+            const item = document.createElement('div');
+            item.className = 'item';
+            
+            const items = [
+                {emoji: '🍎', score: 10, type: 'good'},
+                {emoji: '💎', score: 30, type: 'good'},
+                {emoji: '🍪', score: 20, type: 'good'},
+                {emoji: '🍰', score: 15, type: 'good'},
+                {emoji: '💣', score: -999, type: 'bad'}
             ];
-            const colors = ['#00f', '#ff0', '#0f0', '#f00', '#f0f', '#0ff', '#fa0'];
             
-            let current = {shape: null, color: null, x: 0, y: 0};
+            const selected = items[Math.floor(Math.random() * items.length)];
+            item.innerText = selected.emoji;
+            item.dataset.score = selected.score;
+            item.dataset.type = selected.type;
             
-            function newPiece() {
-                const idx = Math.floor(Math.random() * shapes.length);
-                current = {
-                    shape: shapes[idx],
-                    color: colors[idx],
-                    x: Math.floor(COLS / 2) - 1,
-                    y: 0
-                };
-                if (collision()) gameOver = true;
-            }
+            item.style.left = Math.random() * 85 + '%';
+            item.style.top = '-50px';
+            item.style.animationDuration = (2 + Math.random() * 2) + 's';
             
-            function collision() {
-                for (let r = 0; r < current.shape.length; r++) {
-                    for (let c = 0; c < current.shape[r].length; c++) {
-                        if (current.shape[r][c]) {
-                            let newY = current.y + r;
-                            let newX = current.x + c;
-                            if (newY >= ROWS || newX < 0 || newX >= COLS || (newY >= 0 && board[newY][newX])) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
+            container.appendChild(item);
             
-            function merge() {
-                current.shape.forEach((row, r) => {
-                    row.forEach((val, c) => {
-                        if (val) board[current.y + r][current.x + c] = current.color;
-                    });
-                });
-            }
-            
-            function clearLines() {
-                let linesCleared = 0;
-                for (let r = ROWS - 1; r >= 0; r--) {
-                    if (board[r].every(cell => cell !== 0)) {
-                        board.splice(r, 1);
-                        board.unshift(Array(COLS).fill(0));
-                        linesCleared++;
-                        r++;
-                    }
-                }
-                if (linesCleared > 0) {
-                    score += linesCleared * 100 * level;
-                    level = Math.floor(score / 500) + 1;
-                    document.getElementById('score').innerText = score;
-                    document.getElementById('level').innerText = level;
-                }
-            }
-            
-            function draw() {
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                board.forEach((row, r) => {
-                    row.forEach((val, c) => {
-                        if (val) {
-                            ctx.fillStyle = val;
-                            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK - 1, BLOCK - 1);
-                        }
-                    });
-                });
-                
-                if (current.shape) {
-                    ctx.fillStyle = current.color;
-                    current.shape.forEach((row, r) => {
-                        row.forEach((val, c) => {
-                            if (val) {
-                                ctx.fillRect((current.x + c) * BLOCK, (current.y + r) * BLOCK, BLOCK - 1, BLOCK - 1);
-                            }
-                        });
-                    });
-                }
-                
-                if (gameOver) {
-                    ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                    ctx.fillRect(0, 150, canvas.width, 100);
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 24px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('GAME OVER', canvas.width / 2, 200);
-                }
-            }
-            
-            function rotate() {
-                const rotated = current.shape[0].map((_, i) => current.shape.map(r => r[i]).reverse());
-                const prev = current.shape;
-                current.shape = rotated;
-                if (collision()) current.shape = prev;
-            }
-            
-            function move(dir) {
-                current.x += dir;
-                if (collision()) current.x -= dir;
-            }
-            
-            function drop() {
-                current.y++;
-                if (collision()) {
-                    current.y--;
-                    merge();
-                    clearLines();
-                    newPiece();
-                }
-            }
-            
-            document.addEventListener('keydown', e => {
-                if (gameOver || paused) {
-                    if (e.key === ' ') paused = !paused;
+            const checkCollision = setInterval(() => {
+                if (!gameRunning) {
+                    clearInterval(checkCollision);
                     return;
                 }
-                if (e.key === 'ArrowLeft') move(-1);
-                if (e.key === 'ArrowRight') move(1);
-                if (e.key === 'ArrowDown') drop();
-                if (e.key === 'ArrowUp') rotate();
-                if (e.key === ' ') paused = !paused;
-                draw();
-            });
-            
-            clearInterval(tetrisInterval);
-            newPiece();
-            tetrisInterval = setInterval(() => {
-                if (!gameOver && !paused) {
-                    drop();
-                    draw();
+                
+                const itemRect = item.getBoundingClientRect();
+                const player = document.getElementById('player');
+                if (!player) return;
+                const playerRect = player.getBoundingClientRect();
+                
+                if (itemRect.bottom > playerRect.top &&
+                    itemRect.top < playerRect.bottom &&
+                    itemRect.right > playerRect.left &&
+                    itemRect.left < playerRect.right) {
+                    
+                    const points = parseInt(item.dataset.score);
+                    if (item.dataset.type === 'bad') {
+                        endGame();
+                    } else {
+                        score += points;
+                        document.getElementById('score').innerText = score;
+                    }
+                    item.remove();
+                    clearInterval(checkCollision);
                 }
-            }, Math.max(100, 500 - level * 50));
+                
+                if (itemRect.top > window.innerHeight) {
+                    item.remove();
+                    clearInterval(checkCollision);
+                }
+            }, 50);
+        }
+        
+        function handleKeyPress(e) {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowLeft') movePlayer(-15);
+            if (e.key === 'ArrowRight') movePlayer(15);
+        }
+        
+        function movePlayer(delta) {
+            if (!gameRunning) return;
+            playerPos = Math.max(0, Math.min(100, playerPos + delta));
+            const player = document.getElementById('player');
+            if (player) player.style.left = playerPos + '%';
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            clearInterval(itemInterval);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over').style.display = 'block';
+        }
+        
+        function restartGame() {
+            initGame();
         }
     </script>
 </body>
