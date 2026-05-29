@@ -28,7 +28,6 @@
         .sidebar h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
         .menu-item { padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
         .menu-item:hover, .menu-item.active { background: rgba(255, 255, 255, 0.4); color: #111; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
         /* 메인 영역 */
         .main-content { flex: 1; padding: 40px 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
         .section-container { width: 100%; display: none; justify-content: center; } /* 모든 섹션 초기 숨김 */
@@ -43,6 +42,12 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .blink { animation: blink 1s infinite; }
         .update-time { text-align: right; font-size: 0.8rem; color: #aaa; margin-top: 10px; }
+        
+        /* 테트리스 스타일 */
+        #tetris-canvas { border: 3px solid #2c3e50; background: #000; display: block; margin: 20px auto; box-shadow: 0 0 20px rgba(0,0,0,0.3); }
+        .game-info { display: flex; justify-content: space-around; margin-top: 15px; font-size: 1.1rem; font-weight: bold; }
+        .game-controls { text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem; }
+        
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; padding: 15px; overflow-x: auto; }
@@ -53,15 +58,11 @@
 <body>
     <nav class="sidebar" id="sidebar-nav">
         <h2>대시보드</h2>
-        <!-- 💡 HTML 상에 연락처 메뉴를 삭제했습니다. 일반 사용자일 경우 JS로 추가합니다. -->
         <div class="menu-item" id="menu-traffic08" onclick="showSection('traffic08')">🚌 교통현황 (성북08)</div>
         <div class="menu-item" id="menu-traffic09" onclick="showSection('traffic09')">🚍 교통현황 (성북09)</div>
     </nav>
-
     <main class="main-content">
-        <!-- 💡 연락처 섹션도 기본 HTML에서 제거하고, JS에서 필요할 때만 추가합니다. -->
         <div id="dynamic-content-area"></div>
-
         <!-- 성북08 섹션 -->
         <div id="section-traffic08" class="section-container">
             <div class="box">
@@ -71,7 +72,6 @@
                 <p class="update-time" id="update-time08"></p>
             </div>
         </div>
-
         <!-- 성북09 섹션 -->
         <div id="section-traffic09" class="section-container">
             <div class="box">
@@ -82,22 +82,17 @@
             </div>
         </div>
     </main>
-
     <script>
         // --- 동적 렌더링 함수 (일반 사용자 전용) ---
         function renderContactElements() {
-            // 1. 메뉴 버튼 생성
             const sidebar = document.getElementById('sidebar-nav');
             const contactBtn = document.createElement('div');
             contactBtn.className = 'menu-item';
             contactBtn.id = 'menu-contact';
             contactBtn.innerText = '📞 연락처';
             contactBtn.onclick = () => showSection('contact');
-            
-            // h2("대시보드") 바로 다음(교통현황 위)에 메뉴 삽입
             sidebar.insertBefore(contactBtn, document.getElementById('menu-traffic08'));
-
-            // 2. 섹션 HTML 생성
+            
             const dynamicArea = document.getElementById('dynamic-content-area');
             dynamicArea.innerHTML = `
                 <div id="section-contact" class="section-container">
@@ -114,36 +109,58 @@
             `;
         }
 
+        // --- kgw 전용 테트리스 렌더링 ---
+        function renderTetrisElements() {
+            const sidebar = document.getElementById('sidebar-nav');
+            const tetrisBtn = document.createElement('div');
+            tetrisBtn.className = 'menu-item';
+            tetrisBtn.id = 'menu-tetris';
+            tetrisBtn.innerText = '🎮 테트리스';
+            tetrisBtn.onclick = () => showSection('tetris');
+            sidebar.appendChild(tetrisBtn);
+            
+            const dynamicArea = document.getElementById('dynamic-content-area');
+            dynamicArea.innerHTML = `
+                <div id="section-tetris" class="section-container">
+                    <div class="box">
+                        <h1>🎮 테트리스</h1>
+                        <canvas id="tetris-canvas" width="240" height="400"></canvas>
+                        <div class="game-info">
+                            <div>점수: <span id="score">0</span></div>
+                            <div>레벨: <span id="level">1</span></div>
+                        </div>
+                        <div class="game-controls">
+                            ⬅️ 왼쪽 | ➡️ 오른쪽 | ⬇️ 빠르게 | ⬆️ 회전 | Space: 일시정지
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         // 🔄 섹션 전환 함수
         function showSection(sectionId) {
-            // 모든 섹션 숨김 및 메뉴 비활성화
             document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-
-            // 타겟 섹션 및 메뉴 활성화
+            
             const targetSection = document.getElementById("section-" + sectionId);
             const targetMenu = document.getElementById("menu-" + sectionId);
-            
             if (targetSection && targetMenu) {
                 targetSection.style.display = "flex";
                 targetMenu.classList.add("active");
             }
-
-            // 데이터 호출
+            
             if (sectionId === 'contact') loadData();
             if (sectionId === 'traffic08') loadBusArrive08();
             if (sectionId === 'traffic09') loadBusArrive09();
+            if (sectionId === 'tetris') initTetris();
         }
 
         // 🏁 초기화 로직
         window.addEventListener('DOMContentLoaded', () => {
-
-            // alert("현재 인식된 로그인 아이디: [" + loggedInUser + "]");
             if (loggedInUser === "kgw") {
-                // kgw일 경우: 연락처 생성 생략, 바로 교통현황으로 시작
+                renderTetrisElements();
                 showSection('traffic08');
             } else {
-                // 일반 사용자일 경우: 연락처 요소를 DOM에 그리고 시작
                 renderContactElements();
                 showSection('contact');
             }
@@ -155,15 +172,14 @@
                 const response = await fetch('/api/data');
                 const data = await response.json();
                 const tableBody = document.getElementById('table-body');
-                if(!tableBody) return; // kgw의 경우 테이블 자체가 없으므로 방어
-                
+                if(!tableBody) return;
                 tableBody.innerHTML = data.map(item => `
                     <tr><td>${item.id}</td><td>${item.content1}</td>
                     <td><a href="tel:${item.content2}" style="color:#0056b3; font-weight:bold;">${item.content2}</a></td></tr>
                 `).join('');
             } catch (e) { console.error("연락처 로드 실패"); }
         }
-
+        
         async function loadBusArrive08() {
             const wrap = document.getElementById('bus-arrive-wrap08');
             wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
@@ -174,7 +190,7 @@
                 document.getElementById('update-time08').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
-
+        
         async function loadBusArrive09() {
             const wrap = document.getElementById('bus-arrive-wrap09');
             wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
@@ -185,7 +201,7 @@
                 document.getElementById('update-time09').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
-
+        
         function renderBusInfo(data, wrap, busNm, dir) {
             if (data.msgBody && data.msgBody.itemList) {
                 wrap.innerHTML = data.msgBody.itemList.map(bus => {
@@ -207,6 +223,161 @@
             if (document.getElementById('section-traffic08').style.display !== 'none') loadBusArrive08();
             if (document.getElementById('section-traffic09').style.display !== 'none') loadBusArrive09();
         }, 30000);
+
+        // ===== 테트리스 게임 로직 =====
+        let tetrisInterval;
+        function initTetris() {
+            const canvas = document.getElementById('tetris-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const ROWS = 20, COLS = 12, BLOCK = 20;
+            let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+            let score = 0, level = 1, gameOver = false, paused = false;
+            
+            const shapes = [
+                [[1,1,1,1]], // I
+                [[1,1],[1,1]], // O
+                [[0,1,0],[1,1,1]], // T
+                [[1,0,0],[1,1,1]], // L
+                [[0,0,1],[1,1,1]], // J
+                [[0,1,1],[1,1,0]], // S
+                [[1,1,0],[0,1,1]]  // Z
+            ];
+            const colors = ['#00f', '#ff0', '#0f0', '#f00', '#f0f', '#0ff', '#fa0'];
+            
+            let current = {shape: null, color: null, x: 0, y: 0};
+            
+            function newPiece() {
+                const idx = Math.floor(Math.random() * shapes.length);
+                current = {
+                    shape: shapes[idx],
+                    color: colors[idx],
+                    x: Math.floor(COLS / 2) - 1,
+                    y: 0
+                };
+                if (collision()) gameOver = true;
+            }
+            
+            function collision() {
+                for (let r = 0; r < current.shape.length; r++) {
+                    for (let c = 0; c < current.shape[r].length; c++) {
+                        if (current.shape[r][c]) {
+                            let newY = current.y + r;
+                            let newX = current.x + c;
+                            if (newY >= ROWS || newX < 0 || newX >= COLS || (newY >= 0 && board[newY][newX])) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            function merge() {
+                current.shape.forEach((row, r) => {
+                    row.forEach((val, c) => {
+                        if (val) board[current.y + r][current.x + c] = current.color;
+                    });
+                });
+            }
+            
+            function clearLines() {
+                let linesCleared = 0;
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (board[r].every(cell => cell !== 0)) {
+                        board.splice(r, 1);
+                        board.unshift(Array(COLS).fill(0));
+                        linesCleared++;
+                        r++;
+                    }
+                }
+                if (linesCleared > 0) {
+                    score += linesCleared * 100 * level;
+                    level = Math.floor(score / 500) + 1;
+                    document.getElementById('score').innerText = score;
+                    document.getElementById('level').innerText = level;
+                }
+            }
+            
+            function draw() {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                board.forEach((row, r) => {
+                    row.forEach((val, c) => {
+                        if (val) {
+                            ctx.fillStyle = val;
+                            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK - 1, BLOCK - 1);
+                        }
+                    });
+                });
+                
+                if (current.shape) {
+                    ctx.fillStyle = current.color;
+                    current.shape.forEach((row, r) => {
+                        row.forEach((val, c) => {
+                            if (val) {
+                                ctx.fillRect((current.x + c) * BLOCK, (current.y + r) * BLOCK, BLOCK - 1, BLOCK - 1);
+                            }
+                        });
+                    });
+                }
+                
+                if (gameOver) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                    ctx.fillRect(0, 150, canvas.width, 100);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER', canvas.width / 2, 200);
+                }
+            }
+            
+            function rotate() {
+                const rotated = current.shape[0].map((_, i) => current.shape.map(r => r[i]).reverse());
+                const prev = current.shape;
+                current.shape = rotated;
+                if (collision()) current.shape = prev;
+            }
+            
+            function move(dir) {
+                current.x += dir;
+                if (collision()) current.x -= dir;
+            }
+            
+            function drop() {
+                current.y++;
+                if (collision()) {
+                    current.y--;
+                    merge();
+                    clearLines();
+                    newPiece();
+                }
+            }
+            
+            document.addEventListener('keydown', e => {
+                if (gameOver || paused) {
+                    if (e.key === ' ') paused = !paused;
+                    return;
+                }
+                if (e.key === 'ArrowLeft') move(-1);
+                if (e.key === 'ArrowRight') move(1);
+                if (e.key === 'ArrowDown') drop();
+                if (e.key === 'ArrowUp') rotate();
+                if (e.key === ' ') paused = !paused;
+                draw();
+            });
+            
+            clearInterval(tetrisInterval);
+            newPiece();
+            tetrisInterval = setInterval(() => {
+                if (!gameOver && !paused) {
+                    drop();
+                    draw();
+                }
+            }, Math.max(100, 500 - level * 50));
+        }
     </script>
 </body>
 </html>
