@@ -42,30 +42,29 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .blink { animation: blink 1s infinite; }
         .update-time { text-align: right; font-size: 0.8rem; color: #aaa; margin-top: 10px; }
-        
         /* 치이카와 게임 스타일 */
-        #game-container { 
-            position: relative; 
-            width: 100%; 
-            max-width: 450px; 
-            height: 550px; 
-            margin: 20px auto; 
+        #game-container {
+            position: relative;
+            width: 70%;
+            max-width: 315px;
+            height: 385px;
+            margin: 15px auto;
             background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
             border-radius: 12px;
             overflow: hidden;
-            border: 4px solid #FFB6C1;
+            border: 3px solid #FFB6C1;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             touch-action: none;
         }
         .chiikawa {
             position: absolute;
-            font-size: 50px;
+            font-size: 35px;
             transition: left 0.1s;
             user-select: none;
         }
         .item {
             position: absolute;
-            font-size: 35px;
+            font-size: 25px;
             animation: fall linear;
             user-select: none;
         }
@@ -74,34 +73,34 @@
         }
         .game-score {
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin: 15px 0;
+            margin: 10px 0;
             color: #ff69b4;
         }
         .game-controls {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 12px;
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.6;
         }
         .control-buttons {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            padding: 0 20px;
+            gap: 12px;
+            margin-top: 12px;
+            padding: 0 15px;
         }
         .btn-control {
             flex: 1;
-            max-width: 180px;
-            padding: 18px 20px;
+            max-width: 126px;
+            padding: 14px 16px;
             background: linear-gradient(135deg, #FFB6C1, #FF69B4);
             color: white;
-            border-radius: 15px;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             user-select: none;
             box-shadow: 0 4px 10px rgba(255,105,180,0.3);
@@ -119,8 +118,8 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(255,255,255,0.95);
-            padding: 30px 40px;
-            border-radius: 20px;
+            padding: 25px 30px;
+            border-radius: 16px;
             text-align: center;
             display: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -128,58 +127,59 @@
         }
         #game-over h2 {
             color: #ff69b4;
-            margin-bottom: 15px;
-            font-size: 1.8rem;
+            margin-bottom: 12px;
+            font-size: 1.4rem;
         }
         #restart-btn {
-            padding: 12px 30px;
+            padding: 10px 24px;
             background: linear-gradient(135deg, #FFB6C1, #FF69B4);
             color: white;
             border: none;
-            border-radius: 20px;
-            font-size: 1rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
         }
-        
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar { 
-                width: 100%; 
-                flex-direction: row; 
-                padding: 10px; 
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 10px;
                 overflow-x: auto;
                 gap: 10px;
             }
             .sidebar h2 { display: none; }
-            .menu-item { 
-                padding: 10px 15px; 
+            .menu-item {
+                padding: 10px 15px;
                 white-space: nowrap;
                 font-size: 0.9rem;
             }
-            .main-content { 
-                padding: 15px 10px; 
+            .main-content {
+                padding: 15px 10px;
                 height: calc(100vh - 60px);
             }
-            .box { 
-                padding: 15px 10px; 
+            .box {
+                padding: 15px 10px;
                 max-width: 100%;
             }
-            h1 { 
-                font-size: 1.5rem; 
-                margin-bottom: 10px;
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 8px;
             }
-            #game-container { 
-                height: calc(100vh - 320px);
-                min-height: 400px;
-                max-height: 550px;
+            #game-container {
+                width: 70%;
+                max-width: 280px;
+                height: calc((100vh - 280px) * 0.7);
+                min-height: 280px;
+                max-height: 385px;
                 margin: 10px auto;
-                border-width: 3px;
+                border-width: 2px;
             }
-            .game-score { 
-                font-size: 1.3rem; 
-                margin: 10px 0;
+            .game-score {
+                font-size: 1.1rem;
+                margin: 8px 0;
             }
             .control-buttons {
                 gap: 10px;
@@ -187,44 +187,54 @@
                 margin-top: 10px;
             }
             .btn-control {
-                padding: 20px 15px;
-                font-size: 1rem;
-                border-radius: 12px;
+                max-width: 110px;
+                padding: 14px 12px;
+                font-size: 0.85rem;
+                border-radius: 10px;
             }
             .game-controls {
-                font-size: 0.8rem;
-                margin-top: 10px;
+                font-size: 0.7rem;
+                margin-top: 8px;
                 padding: 0 10px;
             }
             .chiikawa {
-                font-size: 45px;
-            }
-            .item {
                 font-size: 32px;
             }
+            .item {
+                font-size: 22px;
+            }
             #game-over {
-                padding: 25px 30px;
-                max-width: 90%;
+                padding: 20px 25px;
+                max-width: 85%;
             }
             #game-over h2 {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
+            }
+            #game-over p {
+                font-size: 1rem !important;
+            }
+            #restart-btn {
+                padding: 9px 20px;
+                font-size: 0.85rem;
             }
         }
-        
         @media (max-width: 400px) {
             #game-container {
-                height: calc(100vh - 300px);
-                min-height: 350px;
+                width: 70%;
+                max-width: 245px;
+                height: calc((100vh - 260px) * 0.7);
+                min-height: 245px;
             }
             .btn-control {
-                padding: 18px 12px;
-                font-size: 0.95rem;
+                max-width: 95px;
+                padding: 12px 10px;
+                font-size: 0.8rem;
             }
             .chiikawa {
-                font-size: 40px;
+                font-size: 28px;
             }
             .item {
-                font-size: 28px;
+                font-size: 20px;
             }
         }
     </style>
@@ -266,7 +276,6 @@
             contactBtn.innerText = '📞 연락처';
             contactBtn.onclick = () => showSection('contact');
             sidebar.insertBefore(contactBtn, document.getElementById('menu-traffic08'));
-            
             const dynamicArea = document.getElementById('dynamic-content-area');
             dynamicArea.innerHTML = `
                 <div id="section-contact" class="section-container">
@@ -282,7 +291,6 @@
                 </div>
             `;
         }
-
         // --- kgw 전용 치이카와 게임 렌더링 ---
         function renderGameElements() {
             const sidebar = document.getElementById('sidebar-nav');
@@ -292,7 +300,6 @@
             gameBtn.innerText = '🎮 치이카와';
             gameBtn.onclick = () => showSection('game');
             sidebar.appendChild(gameBtn);
-            
             const dynamicArea = document.getElementById('dynamic-content-area');
             dynamicArea.innerHTML = `
                 <div id="section-game" class="section-container">
@@ -303,7 +310,7 @@
                             <div class="chiikawa" id="player">🐹</div>
                             <div id="game-over">
                                 <h2>게임 종료!</h2>
-                                <p style="font-size:1.2rem; margin:10px 0;">최종 점수: <span id="final-score">0</span></p>
+                                <p style="font-size:1.1rem; margin:8px 0;">최종 점수: <span id="final-score">0</span></p>
                                 <button id="restart-btn" onclick="restartGame()">다시 시작</button>
                             </div>
                         </div>
@@ -319,25 +326,21 @@
                 </div>
             `;
         }
-
         // 🔄 섹션 전환 함수
         function showSection(sectionId) {
             document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            
             const targetSection = document.getElementById("section-" + sectionId);
             const targetMenu = document.getElementById("menu-" + sectionId);
             if (targetSection && targetMenu) {
                 targetSection.style.display = "flex";
                 targetMenu.classList.add("active");
             }
-            
             if (sectionId === 'contact') loadData();
             if (sectionId === 'traffic08') loadBusArrive08();
             if (sectionId === 'traffic09') loadBusArrive09();
             if (sectionId === 'game') initGame();
         }
-
         // 🏁 초기화 로직
         window.addEventListener('DOMContentLoaded', () => {
             if (loggedInUser === "kgw") {
@@ -348,7 +351,6 @@
                 showSection('contact');
             }
         });
-
         // --- 데이터 로드 함수 ---
         async function loadData() {
             try {
@@ -362,7 +364,6 @@
                 `).join('');
             } catch (e) { console.error("연락처 로드 실패"); }
         }
-        
         async function loadBusArrive08() {
             const wrap = document.getElementById('bus-arrive-wrap08');
             wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
@@ -373,7 +374,6 @@
                 document.getElementById('update-time08').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
-        
         async function loadBusArrive09() {
             const wrap = document.getElementById('bus-arrive-wrap09');
             wrap.innerHTML = '<div style="text-align:center;">⏳ 로딩 중...</div>';
@@ -384,7 +384,6 @@
                 document.getElementById('update-time09').innerText = "마지막 갱신: " + new Date().toLocaleTimeString();
             } catch (e) { wrap.innerHTML = "데이터를 불러올 수 없습니다."; }
         }
-        
         function renderBusInfo(data, wrap, busNm, dir) {
             if (data.msgBody && data.msgBody.itemList) {
                 wrap.innerHTML = data.msgBody.itemList.map(bus => {
@@ -400,18 +399,15 @@
                 }).join('');
             } else { wrap.innerHTML = "도착 정보가 없습니다."; }
         }
-
         // 30초마다 자동 갱신
         setInterval(() => {
             if (document.getElementById('section-traffic08').style.display !== 'none') loadBusArrive08();
             if (document.getElementById('section-traffic09').style.display !== 'none') loadBusArrive09();
         }, 30000);
-
         // ===== 치이카와 아이템 캐치 게임 =====
         let gameInterval, itemInterval;
         let score = 0, gameRunning = false;
         let playerPos = 50;
-        
         function initGame() {
             score = 0;
             playerPos = 50;
@@ -419,48 +415,36 @@
             document.getElementById('score').innerText = score;
             document.getElementById('game-over').style.display = 'none';
             document.querySelectorAll('.item').forEach(item => item.remove());
-            
             const player = document.getElementById('player');
             if (!player) return;
-            
             player.style.left = '50%';
             player.style.bottom = '20px';
-            
             // 아이템 생성
             clearInterval(itemInterval);
             itemInterval = setInterval(createItem, 1200);
-            
             // 키보드 이벤트
             document.removeEventListener('keydown', handleKeyPress);
             document.addEventListener('keydown', handleKeyPress);
-            
             // 모바일 버튼 이벤트
             const btnLeft = document.getElementById('btn-left');
             const btnRight = document.getElementById('btn-right');
-            
             if (btnLeft && btnRight) {
                 btnLeft.replaceWith(btnLeft.cloneNode(true));
                 btnRight.replaceWith(btnRight.cloneNode(true));
-                
                 const newBtnLeft = document.getElementById('btn-left');
                 const newBtnRight = document.getElementById('btn-right');
-                
                 newBtnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(-15); });
                 newBtnLeft.addEventListener('click', (e) => { e.preventDefault(); movePlayer(-15); });
                 newBtnRight.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(15); });
                 newBtnRight.addEventListener('click', (e) => { e.preventDefault(); movePlayer(15); });
             }
         }
-        
         function createItem() {
             if (!gameRunning) return;
-            
             const container = document.getElementById('game-container');
             if (!container) return;
-            
             const item = document.createElement('div');
             item.className = 'item';
-            
             const items = [
                 {emoji: '🍎', score: 10, type: 'good'},
                 {emoji: '💎', score: 30, type: 'good'},
@@ -468,34 +452,27 @@
                 {emoji: '🍰', score: 15, type: 'good'},
                 {emoji: '💣', score: -999, type: 'bad'}
             ];
-            
             const selected = items[Math.floor(Math.random() * items.length)];
             item.innerText = selected.emoji;
             item.dataset.score = selected.score;
             item.dataset.type = selected.type;
-            
             item.style.left = Math.random() * 85 + '%';
             item.style.top = '-50px';
             item.style.animationDuration = (2 + Math.random() * 2) + 's';
-            
             container.appendChild(item);
-            
             const checkCollision = setInterval(() => {
                 if (!gameRunning) {
                     clearInterval(checkCollision);
                     return;
                 }
-                
                 const itemRect = item.getBoundingClientRect();
                 const player = document.getElementById('player');
                 if (!player) return;
                 const playerRect = player.getBoundingClientRect();
-                
                 if (itemRect.bottom > playerRect.top &&
                     itemRect.top < playerRect.bottom &&
                     itemRect.right > playerRect.left &&
                     itemRect.left < playerRect.right) {
-                    
                     const points = parseInt(item.dataset.score);
                     if (item.dataset.type === 'bad') {
                         endGame();
@@ -506,34 +483,29 @@
                     item.remove();
                     clearInterval(checkCollision);
                 }
-                
                 if (itemRect.top > window.innerHeight) {
                     item.remove();
                     clearInterval(checkCollision);
                 }
             }, 50);
         }
-        
         function handleKeyPress(e) {
             if (!gameRunning) return;
             if (e.key === 'ArrowLeft') movePlayer(-15);
             if (e.key === 'ArrowRight') movePlayer(15);
         }
-        
         function movePlayer(delta) {
             if (!gameRunning) return;
             playerPos = Math.max(0, Math.min(100, playerPos + delta));
             const player = document.getElementById('player');
             if (player) player.style.left = playerPos + '%';
         }
-        
         function endGame() {
             gameRunning = false;
             clearInterval(itemInterval);
             document.getElementById('final-score').innerText = score;
             document.getElementById('game-over').style.display = 'block';
         }
-        
         function restartGame() {
             initGame();
         }
